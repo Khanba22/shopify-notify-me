@@ -1,0 +1,37 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "3f3fb4174c4513e8cb70338a6d0a5546"
+application_url = "https://pics-villages-warren-tournament.trycloudflare.com"
+embedded = true
+name = "notify-me"
+handle = "notify-me-29"
+
+[webhooks]
+api_version = "2025-01"
+
+  [[webhooks.subscriptions]]
+  topics = [ "app/uninstalled" ]
+  uri = "/webhooks/app/uninstalled"
+
+  [[webhooks.subscriptions]]
+  topics = [ "app/scopes_update" ]
+  uri = "/webhooks/app/scopes_update"
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "write_products,write_themes,read_themes"
+
+[auth]
+redirect_urls = [
+  "https://pics-villages-warren-tournament.trycloudflare.com/auth/callback",
+  "https://pics-villages-warren-tournament.trycloudflare.com/auth/shopify/callback",
+  "https://pics-villages-warren-tournament.trycloudflare.com/api/auth/callback"
+]
+
+[pos]
+embedded = false
+
+[build]
+dev_store_url = "33-outofstock.myshopify.com"
+automatically_update_urls_on_dev = true
+include_config_on_deploy = true

@@ -1,0 +1,382 @@
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Roboto:wght@300;400&display=swap');
+
+@import url('https://fonts.googleapis.com/css2?family=Assistant:wght@200..800&family=Doto:wght@100..900&family=Montserrat+Alternates:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Oswald:wght@200..700&display=swap');
+
+/* General Styling */
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: #f8f9fa;
+  margin: 0;
+  padding: 0;
+  color: #333;
+}
+
+/* Overlay */
+.notify-me-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* Modal */
+.notify-me-modal {
+  position: relative;
+  width: 409px;
+  height: 312px;
+  padding: 24px;
+  border-radius: 4px;
+  opacity: 0px;
+  background-color: white;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+/* Close Button */
+.close-button {
+  position: absolute;
+  top: 12px;
+  right: 18px;
+  height: 20px;
+  width: 20px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #aaa;
+  font-weight: 100;
+  transition: color 0.3s;
+}
+
+.close-button:hover {
+  color: #333;
+}
+
+/* Header */
+.notify-me-modal h2 {
+  font-family: "Assistant", serif;
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 32px;
+  color: #222;
+  margin-top: 0;
+  text-align: left;
+}
+
+/* Subtext */
+.notify-me-modal p {
+  font-family: 'Roboto', sans-serif;
+  color: #555;
+  text-align: left;
+  line-height: 20px;
+  font-size: 13px;
+  padding: 0px 4px;
+  font-weight: 400;
+}
+
+/* Product Info */
+.product-info {
+  padding:8px;
+  border: 1px solid #e6e6e6;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  margin-top: 10px;
+}
+
+.product-info img {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  margin-right: 15px;
+}
+
+.product-info span {
+  font-family: "Assistant", serif;
+  font-weight: 600;
+  color: #333;
+  font-size: 13px;
+}
+
+/* Phone Input */
+.phone-input {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+
+  overflow: hidden;
+}
+
+.phone-input select,
+.phone-input input {
+  border: 1px solid #7D7D7D;
+  padding: 12px;
+  /* border: none; */
+  font-size: 16px;
+  outline: none;
+}
+
+.phone-input select {
+  /* border-right: 1px solid #ddd; */
+  width: 50px;
+  padding: 0px 10px;
+  font-size: 13px;
+  font-weight: 600px;
+  line-height: 20px;
+  color: #333;
+  font-family: 'Roboto', sans-serif;
+}
+
+.phone-input input {
+  flex: 1;
+  font-size: 13px;
+  font-family: 'Roboto', sans-serif;
+  color: #555;
+}
+
+/* Form Label */
+.notify-me-modal label {
+  display: block;
+  font-weight: 400;
+  font-family: "Assistant", serif;
+  color: #7D7D7D;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.product-details {
+  display: flex;
+  flex-direction: column;
+}
+
+
+.product-details span:nth-child(2) {
+  font-weight: 400;
+}
+
+/* WhatsApp Button */
+.whatsapp-button {
+  background-color: #068466;
+  color: #ffffff;
+  border: none;
+  padding: 14px;
+  cursor: pointer;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 20px;
+  width: 100%;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+
+
+/* Error Message */
+.error-message {
+  font-family: 'Roboto', sans-serif;
+  color: #e63946;
+  margin-top: 5px;
+  text-align: center;
+}
+
+/* Success Notification */
+.success-notification {
+  background-color: #e6ffe6;
+  border: 1px solid #70db70;
+  padding: 15px;
+  margin-top: 20px;
+  position: relative;
+  border-radius: 8px;
+}
+
+.variant-select {
+  margin-left: 10px;
+  padding: 8px 12px;
+  border: 2px solid #ddd;
+  /* Subtle border */
+  border-radius: 8px;
+  /* Rounded corners */
+  background-color: #ffffff;
+  /* Clean background */
+  color: #333;
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  /* Soft shadow for depth */
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.variant-select:hover {
+  cursor: pointer;
+  border-color: #25d366;
+  /* Highlight color on hover */
+  box-shadow: 0 6px 10px rgba(37, 211, 102, 0.2);
+  /* Slightly stronger shadow */
+}
+
+.variant-select:focus {
+  border-color: #25d366;
+  /* Same as hover for consistency */
+  box-shadow: 0 0 8px rgba(37, 211, 102, 0.5);
+  /* Focus effect */
+}
+
+.variant-select option {
+  padding: 10px;
+  /* Padding for better readability */
+  font-family: 'Roboto', sans-serif;
+  background-color: #ffffff;
+  /* White background for contrast */
+  color: #333;
+}
+
+.variant-select option img{
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+}
+
+.variant-select option:hover {
+  background-color: #f0f0f0;
+  /* Soft hover effect on options */
+  color: #222;
+}
+
+/* Label Styling */
+label {
+  font-family: "Assistant", serif;
+  font-size: 16px;
+  color: #444;
+  font-weight: 500;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.success-notification p {
+  margin: 0;
+  color: #2d862d;
+  font-family: 'Roboto', sans-serif;
+  text-align: center;
+}
+
+.success-notification button {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  background: none;
+  border: none;
+  color: #2d862d;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+  .notify-me-modal {
+    padding: 40px 15px;
+  }
+
+  .product-info span {
+    font-size: 16px;
+  }
+
+  .whatsapp-button {
+    font-size: 16px;
+  }
+
+  .phone-input select,
+  .phone-input input {
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  .variant-select {
+    font-size: 14px;
+    padding: 6px 10px;
+  }
+
+  label {
+    font-size: 14px;
+  }
+}
+
+.notify-me-block{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.success-screen {
+  display: flex;
+  /* height: 110px; */
+  margin-bottom: 10px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding:32px 0px;
+  box-sizing: border-box;
+}
+
+.success-screen p{
+  font-family: "Assistant", serif;
+  font-weight: 600;
+  margin-top: 10px;
+  padding: 0;
+}
+
+.success-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.success-close-button{
+  background-color: transparent;
+  color: #121212;
+  border: 1px solid #121212;
+  padding: 14px;
+  cursor: pointer;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  font-weight: 700;
+  justify-content: center;
+  margin-top: 20px;
+  width: 100%;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+
+h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+}
+
+p {
+  margin-top: 8px;
+  font-size: 16px;
+  color: #666;
+}
