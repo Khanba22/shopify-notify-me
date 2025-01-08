@@ -24,17 +24,22 @@
 
 <div id="notify-me-block-{{ block.id }}" class="notify-me-block">
   <div id="notify-me-root"></div>
+
   <button style="background-color: {{ block.settings.button_color }};
     color: {{ block.settings.button_color }};" class="notify-me-button" id="notify-me-button-{{ block.id }}">
     {{ block.settings.button_text }}
   </button>
 </div>
 
+{% assign backend_url = block.settings.backend_url %}
 
 <script src="{{ 'notify-me.js' | asset_url }}" defer></script>
+<script src="{{ 'setup-button.js' | asset_url }}" defer></script>
+
 
 <script>
-  window.backend_url = "{{ settings.backend_url }}";
+  console.log("Backend URL:", '{{ backend_url }}');
+  window.backend_url = '{{ backend_url }}';
   document.getElementById('notify-me-button-{{ block.id }}').addEventListener('click', function() {
     console.log('Notify Me button clicked');
     window.isBuying = !window.isBuying;
