@@ -39,10 +39,10 @@ const fetchSettings = async () => {
 };
 
 // Use fetched settings
-fetchSettings().then((settings) => {
-  if (settings) {
-    button.forEach((btn) => {
-      btn.innerHTML = settings.buttonText;
-    });
-  }
-});
+// fetchSettings().then((settings) => {
+//   if (settings) {
+//     button.forEach((btn) => {
+//       btn.innerHTML = settings.buttonText;
+//     });
+//   }
+// });

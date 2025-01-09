@@ -1,50 +1,85 @@
 {% style %}
-  .notify-me-block {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    border-radius: 5px;
-  }
   .notify-me-button {
     background-color: transparent;
-    color: "#000000";
-    height: 50px;
-    width: 100%;
+    color: #000000;
     font-size: 16px;
     font-family: 'Roboto', sans-serif;
     font-weight: 400;
     border-radius: 5px;
     border: 1px solid #000000;
     cursor: pointer;
+    padding: 10px;
+    box-sizing: border-box; /* Ensure padding doesn't exceed the block dimensions */
+    display: block;
+    width: 100%; /* Default to full width */
   }
 {% endstyle %}
 
+<link rel="stylesheet" href="{{ 'notify-me.css' | asset_url }}">
 
-
-<div id="notify-me-block-{{ block.id }}" class="notify-me-block">
-  <div id="notify-me-root"></div>
-
-  <button style="background-color: {{ block.settings.button_color }};
-    color: {{ block.settings.button_color }};" class="notify-me-button" id="notify-me-button-{{ block.id }}">
-    {{ block.settings.button_text }}
-  </button>
-</div>
+<button
+  style="
+    background-color: {{ block.settings.button_color | default: '#FFFFFF' }};
+    color: {{ block.settings.text_color | default: '#000000' }};
+    border-radius: {{ block.settings.button_border_radius | default: '5px' }};
+    font-size: {{ block.settings.font_size | default: '16px' }};
+    font-weight: {{ block.settings.font_weight | default: '400' }};
+    border: 1px solid {{ block.settings.border_color | default: '#000000' }};
+    height: {{ block.settings.button_height | default: '50px' }};
+    width: {{ block.settings.button_width | default: '100%' }};
+  "
+  class="notify-me-button"
+  id="notify-me-button-{{ block.id }}"
+>
+  {{ block.settings.button_text | default: 'Notify Me' }}
+</button>
 
 {% assign backend_url = block.settings.backend_url %}
 
 <script src="{{ 'notify-me.js' | asset_url }}" defer></script>
 <script src="{{ 'setup-button.js' | asset_url }}" defer></script>
 
-
 <script>
-  console.log("Backend URL:", '{{ backend_url }}');
-  window.backend_url = '{{ backend_url }}';
-  document.getElementById('notify-me-button-{{ block.id }}').addEventListener('click', function() {
-    console.log('Notify Me button clicked');
-    window.isBuying = !window.isBuying;
-    console.log('isBuying:', window.isBuying);
-  });
+  // Create the div dynamically and append it to the body
+  const div = document.createElement("div");
+
+  div.id = "notify-me-root";
+  div.style.position = "fixed";
+  div.style.top = "0";
+  div.style.left = "0";
+  div.style.zIndex = "9999";
+  div.style.display = "block";
+  div.style.height = document.body.scrollHeight + "px";
+  div.style.width = document.body.scrollWidth + "px";
+  document.body.appendChild(div);
+
+  console.log("Notify Me block loaded");
+
+  // Assign product and backend URL to the window object
+  window.product = {{ product | json }}; // Liquid will render this as JSON
+  window.backend_url = "{{ backend_url | escape }}"; // Escape backend_url for safe rendering
+
+  console.log("Product:", window.product);
+  console.log("Backend URL:", window.backend_url);
+
+  // Attach an event listener to the Notify Me button
+  const buttonId = `notify-me-button-{{ block.id }}`; // Dynamic ID from Liquid
+  const notifyMeButton = document.getElementById(buttonId);
+
+  // Hide button if product is available
+  if (window.product && window.product.available) {
+    notifyMeButton.style.display = "none";
+  }
+
+  if (notifyMeButton) {
+    notifyMeButton.addEventListener("click", function () {
+      console.log("Notify Me button clicked");
+      window.isBuying = !window.isBuying;
+      console.log("isBuying:", window.isBuying);
+    });
+  } else {
+    console.error(`Button with ID ${buttonId} not found`);
+  }
 </script>
 
 {% schema %}
@@ -65,6 +100,52 @@
       "default": "Notify Me"
     },
     {
+      "type": "color",
+      "id": "button_color",
+      "label": "Button Background Color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Button Text Color",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "font_size",
+      "label": "Font Size",
+      "min": 12,
+      "max": 24,
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "button_border_radius",
+      "label": "Border Radius",
+      "min": 0,
+      "max": 50,
+      "default": 5
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Border Color",
+      "default": "#000000"
+    },
+    {
+      "type": "text",
+      "id": "button_height",
+      "label": "Button Height",
+      "default": "50px"
+    },
+    {
+      "type": "text",
+      "id": "button_width",
+      "label": "Button Width",
+      "default": "100%"
+    },
+    {
       "type": "checkbox",
       "id": "show_modal",
       "label": "Enable Modal",
@@ -72,4 +153,4 @@
     }
   ]
 }
-{% endschema %} 
+{% endschema %}

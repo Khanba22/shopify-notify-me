@@ -12,9 +12,18 @@ body {
   color: #333;
 }
 
+#notify-me-root {
+  pointer-events: none;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 9999;
+  display: block;
+}
+
 /* Overlay */
 .notify-me-overlay {
-  position: fixed;
+  position: fixed; /* Ensure it covers the entire screen */
   top: 0;
   left: 0;
   width: 100%;
@@ -23,22 +32,24 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  pointer-events: auto; /* Allow interaction with the modal inside */
 }
 
 /* Modal */
 .notify-me-modal {
   position: relative;
-  width: 409px;
-  height: 312px;
+  width: 459px;
+  height: 350px;
   padding: 24px;
   border-radius: 4px;
-  opacity: 0px;
   background-color: white;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   overflow: hidden;
   transition: all 0.3s ease;
+  pointer-events: auto; /* Enable interaction with the modal */
+  z-index: 10000; /* Ensure it stays above the overlay */
 }
+
 
 /* Close Button */
 .close-button {
@@ -286,6 +297,8 @@ label {
 /* Responsive Design */
 @media (max-width: 480px) {
   .notify-me-modal {
+    width: 100%;
+    height: auto;
     padding: 40px 15px;
   }
 
