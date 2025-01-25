@@ -9,13 +9,16 @@ export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
 
 export const loader = async ({ request }) => {
   await authenticate.admin(request);
-
-  return { apiKey: process.env.SHOPIFY_API_KEY || "" };
+  console.log("Authenticated as admin", request.shop);
+  return {
+    apiKey: process.env.SHOPIFY_API_KEY || "",
+    shop: request.shop,
+    appUrl: process.env.SHOPIFY_APP_URL || "",
+  };
 };
 
 export default function App() {
-  const { apiKey } = useLoaderData();
-
+  const { apiKey, shop, appUrl } = useLoaderData();
   return (
     <AppProvider isEmbeddedApp apiKey={apiKey}>
       <NavMenu>
@@ -25,7 +28,7 @@ export default function App() {
         <Link to="/app/additional">Additional page</Link>
         <Link to="/app/settings">Settings</Link>
       </NavMenu>
-      <Outlet />
+      <Outlet context={{ apiKey, shop, appUrl }} />
     </AppProvider>
   );
 }

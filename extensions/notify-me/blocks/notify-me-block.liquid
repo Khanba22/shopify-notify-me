@@ -17,32 +17,26 @@
 
 <link rel="stylesheet" href="{{ 'notify-me.css' | asset_url }}">
 
-<button
-  style="
+<!-- Notify Me Button -->
+<button style="
     background-color: {{ block.settings.button_color | default: '#FFFFFF' }};
     color: {{ block.settings.text_color | default: '#000000' }};
-    border-radius: {{ block.settings.button_border_radius | default: '5px' }};
-    font-size: {{ block.settings.font_size | default: '16px' }};
+    border-radius: {{ block.settings.button_border_radius | default: '5px' }}px;
+    font-size: {{ block.settings.font_size | default: '16px' }}px;
     font-weight: {{ block.settings.font_weight | default: '400' }};
     border: 1px solid {{ block.settings.border_color | default: '#000000' }};
     height: {{ block.settings.button_height | default: '50px' }};
     width: {{ block.settings.button_width | default: '100%' }};
-  "
-  class="notify-me-button"
-  id="notify-me-button-{{ block.id }}"
->
+  " 
+  class="notify-me-button" 
+  id="notify-me-button-{{ block.id }}">
   {{ block.settings.button_text | default: 'Notify Me' }}
 </button>
 
-{% assign backend_url = block.settings.backend_url %}
-
-<script src="{{ 'notify-me.js' | asset_url }}" defer></script>
-<script src="{{ 'setup-button.js' | asset_url }}" defer></script>
 
 <script>
-  // Create the div dynamically and append it to the body
+  // Dynamically create and append the overlay div
   const div = document.createElement("div");
-
   div.id = "notify-me-root";
   div.style.position = "fixed";
   div.style.top = "0";
@@ -55,18 +49,21 @@
 
   console.log("Notify Me block loaded");
 
-  // Assign product and backend URL to the window object
-  window.product = {{ product | json }}; // Liquid will render this as JSON
-  window.backend_url = "{{ backend_url | escape }}"; // Escape backend_url for safe rendering
+  // Assign product and backend URL to the global window object
+  window.product = {{ product | json }}; // Rendered as JSON by Liquid
+  window.shopify_domain = "{{ block.settings.shopify_domain }}";
+  window.zoko_url = "{{ block.settings.zoko_url }}";
 
   console.log("Product:", window.product);
   console.log("Backend URL:", window.backend_url);
+  console.log("Shopify Domain:", window.shopify_domain);
+  console.log("Zoko URL:", window.zoko_url);
 
-  // Attach an event listener to the Notify Me button
-  const buttonId = `notify-me-button-{{ block.id }}`; // Dynamic ID from Liquid
+  // Attach event listener to the Notify Me button
+  const buttonId = `notify-me-button-{{ block.id }}`; // Dynamic ID generated from Liquid
   const notifyMeButton = document.getElementById(buttonId);
 
-  // Hide button if product is available
+  // Hide the button if the product is available
   if (window.product && window.product.available) {
     notifyMeButton.style.display = "none";
   }
@@ -77,10 +74,39 @@
       window.isBuying = !window.isBuying;
       console.log("isBuying:", window.isBuying);
     });
+    document.addEventListener("DOMContentLoaded", async function () {
+      try {
+        const BASE_URL = window.zoko_url;
+        const DOMAIN = window.shopify_domain;
+
+        // Fetch domain details
+        const response = await fetch(`${BASE_URL}?domain=${DOMAIN}`, {
+          method: "GET",
+          headers: {
+            Authorization: "Bearer NTRvcDFmNyNLZTc=", // Replace with your actual token
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch domain details");
+        }
+
+        const data = await response.json();
+        window.backend_url = data.webhook_url
+        console.log("Fetch Domain Details:", data);
+        console.log("Backend URL:", window.backend_url);
+      } catch (error) {
+        console.error("Error fetching domain details:", error);
+      }
+    });
   } else {
     console.error(`Button with ID ${buttonId} not found`);
   }
 </script>
+
+<!-- Link external scripts -->
+<script src="{{ 'notify-me.js' | asset_url }}" defer></script>
+<script src="{{ 'setup-button.js' | asset_url }}" defer></script>
 
 {% schema %}
 {
@@ -97,7 +123,7 @@
       "type": "text",
       "id": "backend_url",
       "label": "Backend URL",
-      "default": "Notify Me"
+      "default": "Enter Backend URL"
     },
     {
       "type": "color",
@@ -144,6 +170,18 @@
       "id": "button_width",
       "label": "Button Width",
       "default": "100%"
+    },
+    {
+      "type": "text",
+      "id": "zoko_url",
+      "label": "Zoko Base URL",
+      "default": "Enter Your Zoko Base URL"
+    },
+    {
+      "type": "text",
+      "id": "shopify_domain",
+      "label": "Shopify Domain",
+      "default": "Enter Your Shopify Domain"
     },
     {
       "type": "checkbox",

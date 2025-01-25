@@ -1,4 +1,4 @@
-import { useLoaderData, useFetcher } from "@remix-run/react";
+import { useLoaderData, useFetcher, useOutletContext } from "@remix-run/react";
 import { TitleBar } from "@shopify/app-bridge-react";
 import {
   Banner,
@@ -12,39 +12,62 @@ import {
 } from "@shopify/polaris";
 import { useEffect, useState } from "react";
 import prisma from "../db.server";
+import { authenticate } from "../shopify.server";
+import { getActiveThemeId, getProductJson, modifyProductJson, updateProductJson } from "./utils/shopifyThemeHelper";
 
-// Loader function to fetch metadata from the database
-export async function loader() {
+// Loader function to authenticate and fetch metadata
+export const loader = async ({ request }) => {
+  const { shop, apiKey, appUrl } = await authenticate.admin(request);
+
   const metadata = await prisma.metadata.findFirst();
-  return metadata || {};
-}
+  return {
+    metadata: metadata || {},
+    shop,
+    apiKey,
+    appUrl,
+  };
+};
 
 // Action function to handle form submissions
-export async function action({ request }) {
+export const action = async ({ request }) => {
   try {
     const formData = await request.formData();
     const webhookLink = formData.get("webhookLink");
     const buttonText = formData.get("buttonText");
     const language = formData.get("language");
+    const shop = formData.get("shop");
+    const accessToken = formData.get("accessToken"); // Pass access token from context
 
+    // Save form data to the database
     const metadata = await prisma.metadata.upsert({
       where: { id: 1 },
       update: { webhookLink, buttonText, language },
       create: { webhookLink, buttonText, language },
     });
 
+    // Add block to product.json
+    const themeId = await getActiveThemeId(shop, accessToken);
+    const productJson = await getProductJson(shop, accessToken, themeId);
+
+    const updatedProductJson = modifyProductJson(productJson, {
+      type: "random-block",
+      content: `Random text: ${buttonText}`,
+    });
+
+    await updateProductJson(shop, accessToken, themeId, updatedProductJson);
+
     return metadata;
   } catch (error) {
     console.error("Error in action:", error);
     return {
-      error: "Failed to save metadata. Please try again.",
+      error: "Failed to save settings or modify product.json. Please try again.",
     };
   }
-}
+};
 
 // Main settings page component
 export default function SettingsPage() {
-  const metadata = useLoaderData();
+  const { metadata, shop, apiKey, appUrl } = useLoaderData();
   const fetcher = useFetcher();
 
   const [metaData, setMetaData] = useState({
@@ -141,6 +164,24 @@ export default function SettingsPage() {
               value={metaData.language}
               onChange={handleChange("language")}
               disabled={fetcher.state === "submitting"}
+            />
+            <TextField
+              label="API Key"
+              value={apiKey}
+              readOnly
+              helpText="This is your Shopify App API Key"
+            />
+            <TextField
+              label="Shop"
+              value={shop}
+              readOnly
+              helpText="This is the shop domain"
+            />
+            <TextField
+              label="App URL"
+              value={appUrl}
+              readOnly
+              helpText="This is your app URL"
             />
             <Button primary submit loading={fetcher.state === "submitting"}>
               {fetcher.state === "submitting" ? "Saving..." : "Save Settings"}
