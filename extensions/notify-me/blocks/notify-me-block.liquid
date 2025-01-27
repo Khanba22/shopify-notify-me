@@ -8,91 +8,100 @@ font-weight: 400;
 border-radius: 5px;
 border: 1px solid #000000;
 cursor: pointer;
-padding: 10px;
 box-sizing: border-box; /* Ensure padding doesn't exceed the block dimensions */
 display: block;
+margin: 0px;
+padding: 10px;
 width: 100%; /* Default to full width */
+}
+
+.notify-me-root{
+position: fixed;
+top: 0;
+left: 0;
+z-index: 9999;
+display: block;
+height: 100%;
 }
 {% endstyle %}
 
 <link rel="stylesheet" href="{{ 'notify-me.css' | asset_url }}">
-<div></div>
+<div id="notify-me-root" class="notify-me-root"></div>
 <!-- Notify Me Button -->
 <script>
-
-  const div = document.createElement("div");
-  div.id = "notify-me-root";
-  div.style.position = "fixed";
-  div.style.top = "0";
-  div.style.left = "0";
-  div.style.zIndex = "9999";
-  div.style.display = "block";
-  div.style.height = document.body.scrollHeight + "px";
-  div.style.width = document.body.scrollWidth + "px";
-  document.body.appendChild(div);
-  console.log("Notify Me Root:", document.getElementById("notify-me-root"));
   document.addEventListener("DOMContentLoaded", async function () {
     console.log("Dom Loaded")
     try {
       // Dynamically create the Notify Me button
-      const button = document.createElement("button");
-      button.style.backgroundColor = "{{ block.settings.button_color | default: '#FFFFFF' }}";
-      button.style.color = "{{ block.settings.text_color | default: '#000000' }}";
-      button.style.borderRadius = "{{ block.settings.button_border_radius | default: '5px' }}px";
-      button.style.fontSize = "{{ block.settings.font_size | default: '16px' }}px";
-      button.style.fontWeight = "{{ block.settings.font_weight | default: '400' }}";
-      button.style.border = `1px solid {{ block.settings.border_color | default: '#000000' }}`;
-      button.style.height = "{{ block.settings.button_height | default: '50px' }}";
-      button.style.width = "{{ block.settings.button_width | default: '100%' }}";
-      button.className = "notify-me-button";
-      button.id = "notify-me-button-{{ block.id }}";
-      button.innerText = "{{ block.settings.button_text | default: 'Notify Me' }}";
-      console.log("Notify Me Button:", button);
-      // Find the target container specified in the schema
-      const targetContainer = document.querySelector(".product-form__buttons");
-      console.log("Target Container:", targetContainer);
+      const div = document.getElementById("notify-me-root");
+      if (div) {
+        div.style.height = document.body.scrollHeight + "px";
+        div.style.width = document.body.scrollWidth + "px";
+        console.log("Notify Me Root:", div);
 
-      if (targetContainer) {
-        // Append the button to the target container
-        targetContainer.appendChild(button);
-
-        // Attach the click event listener to the button
-        button.addEventListener("click", function () {
-          console.log("Notify Me button clicked");
-          window.isBuying = !window.isBuying;
-          console.log("isBuying:", window.isBuying);
-        });
-
-        // Hide the button if the product is available
-        if (window.product && window.product.available) {
-          button.style.display = "none";
-        }
       } else {
-        console.error(`Target container "${schema.target}" not found.`);
+        console.error("Notify Me Root not found");
       }
+      const button = document.createElement("button");
+      window.product = {{ product | json }
+    };
+    button.style.backgroundColor = "{{ block.settings.button_color | default: '#FFFFFF' }}";
+    button.style.color = "{{ block.settings.text_color | default: '#000000' }}";
+    button.style.borderRadius = "{{ block.settings.button_border_radius | default: '5px' }}px";
+    button.style.fontSize = "{{ block.settings.font_size | default: '16px' }}px";
+    button.style.fontWeight = "{{ block.settings.font_weight | default: '400' }}";
+    button.style.border = `1px solid {{ block.settings.border_color | default: '#000000' }}`;
+    button.style.height = "{{ block.settings.button_height | default: '50px' }}";
+    button.style.width = "{{ block.settings.button_width | default: '100%' }}";
+    button.className = "notify-me-button";
+    button.id = "notify-me-button-{{ block.id }}";
+    button.innerText = "{{ block.settings.button_text | default: 'Notify Me' }}";
+    console.log("Notify Me Button:", button);
+    // Find the target container specified in the schema
+    const targetContainer = document.querySelector(".product-form__buttons");
+    console.log("Target Container:", targetContainer);
 
-      // Fetch domain details and assign them to the global window object
-      const BASE_URL = "https://web.gke.zoko.dev/v3/api/integration/stock_alert_webhook";
-      const DOMAIN = "{{ shop.domain }}";
-      const URL = `${BASE_URL}?domain=${DOMAIN}`;
-      console.log("Fetch Domain Details URL:", URL);
-      const response = await fetch(URL, {
-        method: "GET",
-        headers: {
-          Authorization: "Bearer NTRvcDFmNyNLZTc=", // Replace with your actual token
-        },
+    if (targetContainer) {
+      // Append the button to the target container
+      targetContainer.appendChild(button);
+
+      // Attach the click event listener to the button
+      button.addEventListener("click", function () {
+        console.log("Notify Me button clicked");
+        window.isBuying = !window.isBuying;
+        console.log("isBuying:", window.isBuying);
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch domain details");
+      // Hide the button if the product is available
+      if (window.product && window.product.available) {
+        button.style.display = "none";
       }
-
-      const data = await response.json();
-      window.backend_url = data.webhook_url;
-      console.log("Fetch Domain Details:", data);
-    } catch (error) {
-      console.error("Error initializing Notify Me block:", error);
+    } else {
+      console.error(`Target container "${schema.target}" not found.`);
     }
+
+    // Fetch domain details and assign them to the global window object
+    const BASE_URL = "https://web.gke.zoko.dev/v3/api/integration/stock_alert_webhook";
+    const DOMAIN = "{{ shop.domain }}";
+    const URL = `${BASE_URL}?domain=${DOMAIN}`;
+    console.log("Fetch Domain Details URL:", URL);
+    const response = await fetch(URL, {
+      method: "GET",
+      headers: {
+        Authorization: "Bearer NTRvcDFmNyNLZTc=", // Replace with your actual token
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch domain details");
+    }
+
+    const data = await response.json();
+    window.backend_url = data.webhook_url;
+    console.log("Fetch Domain Details:", data);
+  } catch (error) {
+    console.error("Error initializing Notify Me block:", error);
+  }
   });
 </script>
 
