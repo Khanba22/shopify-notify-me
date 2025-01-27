@@ -1,41 +1,25 @@
 {% style %}
-  .notify-me-button {
-    background-color: transparent;
-    color: #000000;
-    font-size: 16px;
-    font-family: 'Roboto', sans-serif;
-    font-weight: 400;
-    border-radius: 5px;
-    border: 1px solid #000000;
-    cursor: pointer;
-    padding: 10px;
-    box-sizing: border-box; /* Ensure padding doesn't exceed the block dimensions */
-    display: block;
-    width: 100%; /* Default to full width */
-  }
+.notify-me-button {
+background-color: transparent;
+color: #000000;
+font-size: 16px;
+font-family: 'Roboto', sans-serif;
+font-weight: 400;
+border-radius: 5px;
+border: 1px solid #000000;
+cursor: pointer;
+padding: 10px;
+box-sizing: border-box; /* Ensure padding doesn't exceed the block dimensions */
+display: block;
+width: 100%; /* Default to full width */
+}
 {% endstyle %}
 
 <link rel="stylesheet" href="{{ 'notify-me.css' | asset_url }}">
-
+<div></div>
 <!-- Notify Me Button -->
-<button style="
-    background-color: {{ block.settings.button_color | default: '#FFFFFF' }};
-    color: {{ block.settings.text_color | default: '#000000' }};
-    border-radius: {{ block.settings.button_border_radius | default: '5px' }}px;
-    font-size: {{ block.settings.font_size | default: '16px' }}px;
-    font-weight: {{ block.settings.font_weight | default: '400' }};
-    border: 1px solid {{ block.settings.border_color | default: '#000000' }};
-    height: {{ block.settings.button_height | default: '50px' }};
-    width: {{ block.settings.button_width | default: '100%' }};
-  " 
-  class="notify-me-button" 
-  id="notify-me-button-{{ block.id }}">
-  {{ block.settings.button_text | default: 'Notify Me' }}
-</button>
-
-
 <script>
-  // Dynamically create and append the overlay div
+
   const div = document.createElement("div");
   div.id = "notify-me-root";
   div.style.position = "fixed";
@@ -46,149 +30,139 @@
   div.style.height = document.body.scrollHeight + "px";
   div.style.width = document.body.scrollWidth + "px";
   document.body.appendChild(div);
+  console.log("Notify Me Root:", document.getElementById("notify-me-root"));
+  document.addEventListener("DOMContentLoaded", async function () {
+    console.log("Dom Loaded")
+    try {
+      // Dynamically create the Notify Me button
+      const button = document.createElement("button");
+      button.style.backgroundColor = "{{ block.settings.button_color | default: '#FFFFFF' }}";
+      button.style.color = "{{ block.settings.text_color | default: '#000000' }}";
+      button.style.borderRadius = "{{ block.settings.button_border_radius | default: '5px' }}px";
+      button.style.fontSize = "{{ block.settings.font_size | default: '16px' }}px";
+      button.style.fontWeight = "{{ block.settings.font_weight | default: '400' }}";
+      button.style.border = `1px solid {{ block.settings.border_color | default: '#000000' }}`;
+      button.style.height = "{{ block.settings.button_height | default: '50px' }}";
+      button.style.width = "{{ block.settings.button_width | default: '100%' }}";
+      button.className = "notify-me-button";
+      button.id = "notify-me-button-{{ block.id }}";
+      button.innerText = "{{ block.settings.button_text | default: 'Notify Me' }}";
+      console.log("Notify Me Button:", button);
+      // Find the target container specified in the schema
+      const targetContainer = document.querySelector(".product-form__buttons");
+      console.log("Target Container:", targetContainer);
 
-  console.log("Notify Me block loaded");
+      if (targetContainer) {
+        // Append the button to the target container
+        targetContainer.appendChild(button);
 
-  // Assign product and backend URL to the global window object
-  window.product = {{ product | json }}; // Rendered as JSON by Liquid
-  window.shopify_domain = "{{ block.settings.shopify_domain }}";
-  window.zoko_url = "{{ block.settings.zoko_url }}";
-
-  console.log("Product:", window.product);
-  console.log("Backend URL:", window.backend_url);
-  console.log("Shopify Domain:", window.shopify_domain);
-  console.log("Zoko URL:", window.zoko_url);
-
-  // Attach event listener to the Notify Me button
-  const buttonId = `notify-me-button-{{ block.id }}`; // Dynamic ID generated from Liquid
-  const notifyMeButton = document.getElementById(buttonId);
-
-  // Hide the button if the product is available
-  if (window.product && window.product.available) {
-    notifyMeButton.style.display = "none";
-  }
-
-  if (notifyMeButton) {
-    notifyMeButton.addEventListener("click", function () {
-      console.log("Notify Me button clicked");
-      window.isBuying = !window.isBuying;
-      console.log("isBuying:", window.isBuying);
-    });
-    document.addEventListener("DOMContentLoaded", async function () {
-      try {
-        const BASE_URL = window.zoko_url;
-        const DOMAIN = window.shopify_domain;
-
-        // Fetch domain details
-        const response = await fetch(`${BASE_URL}?domain=${DOMAIN}`, {
-          method: "GET",
-          headers: {
-            Authorization: "Bearer NTRvcDFmNyNLZTc=", // Replace with your actual token
-          },
+        // Attach the click event listener to the button
+        button.addEventListener("click", function () {
+          console.log("Notify Me button clicked");
+          window.isBuying = !window.isBuying;
+          console.log("isBuying:", window.isBuying);
         });
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch domain details");
+        // Hide the button if the product is available
+        if (window.product && window.product.available) {
+          button.style.display = "none";
         }
-
-        const data = await response.json();
-        window.backend_url = data.webhook_url
-        console.log("Fetch Domain Details:", data);
-        console.log("Backend URL:", window.backend_url);
-      } catch (error) {
-        console.error("Error fetching domain details:", error);
+      } else {
+        console.error(`Target container "${schema.target}" not found.`);
       }
-    });
-  } else {
-    console.error(`Button with ID ${buttonId} not found`);
-  }
+
+      // Fetch domain details and assign them to the global window object
+      const BASE_URL = "https://web.gke.zoko.dev/v3/api/integration/stock_alert_webhook";
+      const DOMAIN = "{{ shop.domain }}";
+      const URL = `${BASE_URL}?domain=${DOMAIN}`;
+      console.log("Fetch Domain Details URL:", URL);
+      const response = await fetch(URL, {
+        method: "GET",
+        headers: {
+          Authorization: "Bearer NTRvcDFmNyNLZTc=", // Replace with your actual token
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch domain details");
+      }
+
+      const data = await response.json();
+      window.backend_url = data.webhook_url;
+      console.log("Fetch Domain Details:", data);
+    } catch (error) {
+      console.error("Error initializing Notify Me block:", error);
+    }
+  });
 </script>
+
 
 <!-- Link external scripts -->
 <script src="{{ 'notify-me.js' | asset_url }}" defer></script>
-<script src="{{ 'setup-button.js' | asset_url }}" defer></script>
 
 {% schema %}
 {
-  "name": "Notify Me Block",
-  "target": "section",
-  "settings": [
-    {
-      "type": "text",
-      "id": "button_text",
-      "label": "Button Text",
-      "default": "Notify Me"
-    },
-    {
-      "type": "text",
-      "id": "backend_url",
-      "label": "Backend URL",
-      "default": "Enter Backend URL"
-    },
-    {
-      "type": "color",
-      "id": "button_color",
-      "label": "Button Background Color",
-      "default": "#FFFFFF"
-    },
-    {
-      "type": "color",
-      "id": "text_color",
-      "label": "Button Text Color",
-      "default": "#000000"
-    },
-    {
-      "type": "range",
-      "id": "font_size",
-      "label": "Font Size",
-      "min": 12,
-      "max": 24,
-      "default": 16
-    },
-    {
-      "type": "range",
-      "id": "button_border_radius",
-      "label": "Border Radius",
-      "min": 0,
-      "max": 50,
-      "default": 5
-    },
-    {
-      "type": "color",
-      "id": "border_color",
-      "label": "Border Color",
-      "default": "#000000"
-    },
-    {
-      "type": "text",
-      "id": "button_height",
-      "label": "Button Height",
-      "default": "50px"
-    },
-    {
-      "type": "text",
-      "id": "button_width",
-      "label": "Button Width",
-      "default": "100%"
-    },
-    {
-      "type": "text",
-      "id": "zoko_url",
-      "label": "Zoko Base URL",
-      "default": "Enter Your Zoko Base URL"
-    },
-    {
-      "type": "text",
-      "id": "shopify_domain",
-      "label": "Shopify Domain",
-      "default": "Enter Your Shopify Domain"
-    },
-    {
-      "type": "checkbox",
-      "id": "show_modal",
-      "label": "Enable Modal",
-      "default": true
-    }
-  ]
+"name": "Notify Me Block",
+"target": "body",
+"settings": [
+{
+"type": "text",
+"id": "button_text",
+"label": "Button Text",
+"default": "Notify Me"
+},
+{
+"type": "color",
+"id": "button_color",
+"label": "Button Background Color",
+"default": "#FFFFFF"
+},
+{
+"type": "color",
+"id": "text_color",
+"label": "Button Text Color",
+"default": "#000000"
+},
+{
+"type": "range",
+"id": "font_size",
+"label": "Font Size",
+"min": 12,
+"max": 24,
+"default": 16
+},
+{
+"type": "range",
+"id": "button_border_radius",
+"label": "Border Radius",
+"min": 0,
+"max": 50,
+"default": 5
+},
+{
+"type": "color",
+"id": "border_color",
+"label": "Border Color",
+"default": "#000000"
+},
+{
+"type": "text",
+"id": "button_height",
+"label": "Button Height",
+"default": "50px"
+},
+{
+"type": "text",
+"id": "button_width",
+"label": "Button Width",
+"default": "100%"
+},
+{
+"type": "checkbox",
+"id": "show_modal",
+"label": "Enable Modal",
+"default": true
+}
+]
 }
 {% endschema %}

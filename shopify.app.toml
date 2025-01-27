@@ -1,7 +1,7 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "3f3fb4174c4513e8cb70338a6d0a5546"
-application_url = "https://ball-pipeline-mine-marion.trycloudflare.com"
+application_url = "https://edmonton-assisted-usgs-kirk.trycloudflare.com"
 embedded = true
 name = "notify-me"
 handle = "notify-me-29"
@@ -23,9 +23,9 @@ scopes = "write_products,write_themes,read_themes"
 
 [auth]
 redirect_urls = [
-  "https://ball-pipeline-mine-marion.trycloudflare.com/auth/callback",
-  "https://ball-pipeline-mine-marion.trycloudflare.com/auth/shopify/callback",
-  "https://ball-pipeline-mine-marion.trycloudflare.com/api/auth/callback"
+  "https://edmonton-assisted-usgs-kirk.trycloudflare.com/auth/callback",
+  "https://edmonton-assisted-usgs-kirk.trycloudflare.com/auth/shopify/callback",
+  "https://edmonton-assisted-usgs-kirk.trycloudflare.com/api/auth/callback"
 ]
 
 [pos]
