@@ -15,7 +15,7 @@ padding: 10px;
 width: 100%; /* Default to full width */
 }
 
-.notify-me-root{
+.notify-me-root {
 position: fixed;
 top: 0;
 left: 0;
@@ -27,86 +27,84 @@ height: 100%;
 
 <link rel="stylesheet" href="{{ 'notify-me.css' | asset_url }}">
 <div id="notify-me-root" class="notify-me-root"></div>
-<!-- Notify Me Button -->
+
 <script>
+  window.product = {{ product | json }};
   document.addEventListener("DOMContentLoaded", async function () {
-    console.log("Dom Loaded")
+    console.log("DOM Loaded");
     try {
-      // Dynamically create the Notify Me button
       const div = document.getElementById("notify-me-root");
       if (div) {
         div.style.height = document.body.scrollHeight + "px";
         div.style.width = document.body.scrollWidth + "px";
         console.log("Notify Me Root:", div);
-
       } else {
         console.error("Notify Me Root not found");
       }
+
       const button = document.createElement("button");
-      window.product = {{ product | json }
-    };
-    button.style.backgroundColor = "{{ block.settings.button_color | default: '#FFFFFF' }}";
-    button.style.color = "{{ block.settings.text_color | default: '#000000' }}";
-    button.style.borderRadius = "{{ block.settings.button_border_radius | default: '5px' }}px";
-    button.style.fontSize = "{{ block.settings.font_size | default: '16px' }}px";
-    button.style.fontWeight = "{{ block.settings.font_weight | default: '400' }}";
-    button.style.border = `1px solid {{ block.settings.border_color | default: '#000000' }}`;
-    button.style.height = "{{ block.settings.button_height | default: '50px' }}";
-    button.style.width = "{{ block.settings.button_width | default: '100%' }}";
-    button.className = "notify-me-button";
-    button.id = "notify-me-button-{{ block.id }}";
-    button.innerText = "{{ block.settings.button_text | default: 'Notify Me' }}";
-    console.log("Notify Me Button:", button);
-    // Find the target container specified in the schema
-    const targetContainer = document.querySelector(".product-form__buttons");
-    console.log("Target Container:", targetContainer);
+      // Apply styles dynamically from Liquid settings
+      button.style.backgroundColor = "{{ block.settings.button_color | default: '#FFFFFF' }}";
+      button.style.color = "{{ block.settings.text_color | default: '#000000' }}";
+      button.style.borderRadius = "{{ block.settings.button_border_radius | default: '5' }}px";
+      button.style.fontSize = "{{ block.settings.font_size | default: '16' }}px";
+      button.style.fontWeight = "{{ block.settings.font_weight | default: '400' }}";
+      button.style.border = "1px solid {{ block.settings.border_color | default: '#000000' }}";
+      button.style.height = "{{ block.settings.button_height | default: '50px' }}";
+      button.style.width = "{{ block.settings.button_width | default: '100%' }}";
 
-    if (targetContainer) {
-      // Append the button to the target container
-      targetContainer.appendChild(button);
+      button.className = "notify-me-button";
+      button.id = "notify-me-button-{{ block.id }}";
+      button.innerText = "{{ block.settings.button_text | default: 'Notify Me' }}";
 
-      // Attach the click event listener to the button
-      button.addEventListener("click", function () {
-        console.log("Notify Me button clicked");
-        window.isBuying = !window.isBuying;
-        console.log("isBuying:", window.isBuying);
+      console.log("Notify Me Button:", button);
+
+      const targetContainer = document.querySelector(".product-form__buttons");
+      console.log("Target Container:", targetContainer);
+
+      if (targetContainer) {
+        targetContainer.appendChild(button);
+
+        button.addEventListener("click", function () {
+          console.log("Notify Me button clicked");
+          window.isBuying = !window.isBuying;
+          console.log("isBuying:", window.isBuying);
+        });
+
+        // Hide the button if the product is available
+        if (window.product && window.product.available) {
+          button.style.display = "none";
+        }
+      } else {
+        console.error(`Target container "${schema.target}" not found.`);
+      }
+
+      // Fetch domain details and assign to global object
+      const BASE_URL = "https://web.gke.zoko.dev/v3/api/integration/stock_alert_webhook";
+      const DOMAIN = "{{ shop.domain }}";
+      const URL = `${BASE_URL}?domain=${DOMAIN}`;
+      console.log("Fetch Domain Details URL:", URL);
+
+      const response = await fetch(URL, {
+        method: "GET",
+        headers: {
+          Authorization: "Bearer NTRvcDFmNyNLZTc=", // Replace with your actual token
+        },
       });
 
-      // Hide the button if the product is available
-      if (window.product && window.product.available) {
-        button.style.display = "none";
+      if (!response.ok) {
+        throw new Error("Failed to fetch domain details");
       }
-    } else {
-      console.error(`Target container "${schema.target}" not found.`);
+
+      const data = await response.json();
+      window.backend_url = data.webhook_url;
+      console.log("Fetch Domain Details:", data);
+    } catch (error) {
+      console.error("Error initializing Notify Me block:", error);
     }
-
-    // Fetch domain details and assign them to the global window object
-    const BASE_URL = "https://web.gke.zoko.dev/v3/api/integration/stock_alert_webhook";
-    const DOMAIN = "{{ shop.domain }}";
-    const URL = `${BASE_URL}?domain=${DOMAIN}`;
-    console.log("Fetch Domain Details URL:", URL);
-    const response = await fetch(URL, {
-      method: "GET",
-      headers: {
-        Authorization: "Bearer NTRvcDFmNyNLZTc=", // Replace with your actual token
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch domain details");
-    }
-
-    const data = await response.json();
-    window.backend_url = data.webhook_url;
-    console.log("Fetch Domain Details:", data);
-  } catch (error) {
-    console.error("Error initializing Notify Me block:", error);
-  }
   });
 </script>
 
-
-<!-- Link external scripts -->
 <script src="{{ 'notify-me.js' | asset_url }}" defer></script>
 
 {% schema %}

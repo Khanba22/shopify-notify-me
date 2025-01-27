@@ -1,7 +1,7 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "3f3fb4174c4513e8cb70338a6d0a5546"
-application_url = "https://made-wy-til-portions.trycloudflare.com"
+application_url = "https://actively-what-welding-human.trycloudflare.com"
 embedded = true
 name = "notify-me"
 handle = "notify-me-29"
@@ -23,9 +23,9 @@ scopes = "write_products,write_themes,read_themes"
 
 [auth]
 redirect_urls = [
-  "https://made-wy-til-portions.trycloudflare.com/auth/callback",
-  "https://made-wy-til-portions.trycloudflare.com/auth/shopify/callback",
-  "https://made-wy-til-portions.trycloudflare.com/api/auth/callback"
+  "https://actively-what-welding-human.trycloudflare.com/auth/callback",
+  "https://actively-what-welding-human.trycloudflare.com/auth/shopify/callback",
+  "https://actively-what-welding-human.trycloudflare.com/api/auth/callback"
 ]
 
 [pos]
